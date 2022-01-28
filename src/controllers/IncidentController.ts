@@ -5,6 +5,21 @@ import HttpStatusCode from "../constants/HttpStatusCode";
 import Incident from "../models/Incident";
 import IncidentService from "../services/IncidentService";
 import { createdView, errorView, successView } from "../views";
+import { extractAjvErrors } from "../util";
+
+const ajv = new Ajv();
+
+const schema: JSONSchemaType<Incident> = {
+  type: "object",
+  properties: {
+    title: { type: "string" },
+    description: { type: "string" },
+    value: { type: "string" },
+    ongId: { type: "string" },
+  },
+  required: ["description", "title", "value", "ongId"],
+  additionalProperties: false,
+};
 
 class IncidentController {
   async create(req: Request, res: Response) {
@@ -18,27 +33,13 @@ class IncidentController {
       ongId,
     };
 
-    const ajv = new Ajv();
-
-    const schema: JSONSchemaType<Incident> = {
-      type: "object",
-      properties: {
-        title: { type: "string" },
-        description: { type: "string" },
-        value: { type: "string" },
-        ongId: { type: "string" },
-      },
-      required: ["description", "title", "value", "ongId"],
-      additionalProperties: false,
-    };
-
     const validate = ajv.validate(schema, incidentSchema);
 
     if (!validate) {
       const response = errorView(
         {
-          message: "Invalid values",
-          errors: ajv.errors,
+          message: ajv.errorsText(ajv.errors),
+          errors: extractAjvErrors(ajv.errors),
         },
         HttpStatusCode.BAD_REQUEST
       );
@@ -65,7 +66,7 @@ class IncidentController {
     }
   }
 
-  async get(req: Request, res: Response) {
+  async findAll(req: Request, res: Response) {
     const ongId = req.headers.authorization;
 
     if (!ongId) {
@@ -80,7 +81,7 @@ class IncidentController {
     }
 
     try {
-      const incidents = await IncidentService.get(ongId);
+      const incidents = await IncidentService.findAll(ongId);
 
       const response = successView(incidents, incidents.length);
 
@@ -108,7 +109,7 @@ class IncidentController {
     }
 
     const ongId = req.headers.authorization;
-    const incident = await IncidentService.getOne(incidentId);
+    const incident = await IncidentService.findOne(incidentId);
 
     if (!incident) {
       const response = errorView(
@@ -145,6 +146,26 @@ class IncidentController {
     const data: Partial<Incident> = req.body;
     delete data.ongId;
 
+    const incidentSchema: Partial<Incident> = {
+      title: data.title,
+      description: data.description,
+      value: data.value,
+    };
+
+    const validate = ajv.validate(schema, incidentSchema);
+
+    if (!validate) {
+      const response = errorView(
+        {
+          message: ajv.errorsText(ajv.errors),
+          errors: extractAjvErrors(ajv.errors),
+        },
+        HttpStatusCode.BAD_REQUEST
+      );
+
+      return res.status(HttpStatusCode.BAD_REQUEST).json(response);
+    }
+
     if (!incidentId) {
       const response = errorView(
         {
@@ -157,7 +178,7 @@ class IncidentController {
     }
 
     const ongId = req.headers.authorization;
-    const incident = await IncidentService.getOne(incidentId);
+    const incident = await IncidentService.findOne(incidentId);
 
     if (!incident) {
       const response = errorView(

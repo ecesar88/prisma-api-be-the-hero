@@ -21,3 +21,6 @@ CREATE TABLE "Incidents" (
 
 -- CreateIndex
 CREATE UNIQUE INDEX "Ong_id_key" ON "Ong"("id");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "Ong_email_key" ON "Ong"("email");

@@ -13,7 +13,7 @@ datasource db {
 model Ong {
   id        String      @id @unique @default(uuid())
   name      String
-  email     String
+  email     String      @unique
   whatsapp  String
   city      String
   uf        String

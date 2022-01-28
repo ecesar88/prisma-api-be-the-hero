@@ -14,7 +14,7 @@ class IncidentService {
     return Incident.id;
   }
 
-  async get(ong_Id: string) {
+  async findAll(ong_Id: string) {
     return await prismaClient.incidents.findMany({
       where: {
         ongId: {
@@ -24,7 +24,7 @@ class IncidentService {
     });
   }
 
-  async getOne(incidentId: string) {
+  async findOne(incidentId: string) {
     return await prismaClient.incidents.findFirst({
       where: {
         id: {

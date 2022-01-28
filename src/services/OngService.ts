@@ -12,7 +12,15 @@ class OngService {
     return Ong.id;
   }
 
-  async get() {
+  async findOne(key: string, value: any) {
+    return await prismaClient.ong.findFirst({
+      where: {
+        [key]: value,
+      },
+    });
+  }
+
+  async findAll() {
     return await prismaClient.ong.findMany({
       select: {
         name: true,

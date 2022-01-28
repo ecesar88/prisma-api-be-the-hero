@@ -1,10 +1,13 @@
 import express from "express";
 
 import ROUTES from "../constants/routes";
+import AuthController from "../controllers/AuthController";
 import IncidentController from "../controllers/IncidentController";
 import OngController from "../controllers/OngController";
 
 const router = express.Router();
+
+router.route(ROUTES.LOGIN).post(AuthController.login);
 
 /* /ongs */
 router.route(ROUTES.ONGS).post(OngController.create).get(OngController.get);
@@ -13,7 +16,7 @@ router.route(ROUTES.ONGS).post(OngController.create).get(OngController.get);
 router
   .route(ROUTES.INCIDENTS)
   .post(IncidentController.create)
-  .get(IncidentController.get)
+  .get(IncidentController.findAll)
   .put(IncidentController.update)
   .delete(IncidentController.delete);
 

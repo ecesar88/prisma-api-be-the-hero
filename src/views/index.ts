@@ -19,11 +19,11 @@ export function errorView(
   };
 }
 
-export function successView(data: any, total: number) {
+export function successView(data: any, total?: number) {
   return {
     success: true,
     code: HttpStatusCode.OK,
-    total,
+    ...(total && { total }),
     data,
   };
 }
